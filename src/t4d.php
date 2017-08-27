@@ -175,7 +175,7 @@ class Main {
 					$channel = $mts [1];
 				elseif (array_key_exists ( "channels", $_GET ) && $matchs = $_GET ["channels"])
 					$channel = $matchs;
-			} elseif (T4D_DEBUG && array_key_exists ( "q", $_GET ) && "logs" == $_GET ["q"]) {
+			} elseif (T4D_DEBUG && array_key_exists ( "list", $_GET )) {
 				if ($dir = opendir ( "logs/" )) {
 					header ( "Content-type: text/plain; charset=utf-8" );
 					while ( ($file = readdir ( $dir )) !== false ) {
