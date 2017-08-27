@@ -2,7 +2,6 @@
 require_once 't4d_secret.php';
 class Util {
 	const VERSION = "v1.0";
-	const DEBUG = false;
 	public static function secondsToText(/*int*/ $seconds)/*: string*/ {
 		// if you dont need php5 support, just remove the is_int check and make the input argument type int.
 		if (! \is_int ( $seconds )) {
@@ -48,7 +47,7 @@ class Response {
 		http_response_code ( $this->result_code );
 		header ( "Content-type: application/json; charset=utf-8" );
 		echo $result_json = json_encode ( $this->result_data );
-		if (Util::DEBUG) {
+		if (T4D_DEBUG) {
 			$dir = './logs/';
 			if (! file_exists ( $dir ))
 				mkdir ( $dir, 0777 );
@@ -69,13 +68,13 @@ class T4D {
 			throw new InvalidQueryException ( "Invalid channel ID" );
 
 		$channelID = $this->channelID;
-		if (Util::DEBUG)
+		if (T4D_DEBUG)
 			$this->response->result_data_t4d += array (
 					"channel_id" => $channelID
 			);
 		$travisdata = $this->recieveTravisData ();
 		$discorddata = $this->travisDataToDiscordData ( $travisdata );
-		if (Util::DEBUG)
+		if (T4D_DEBUG)
 			$this->response->result_data_t4d += array (
 					"send_data" => $discorddata
 			);
@@ -176,7 +175,7 @@ class Main {
 					$channel = $mts [1];
 				elseif (array_key_exists ( "channels", $_GET ) && $matchs = $_GET ["channels"])
 					$channel = $matchs;
-			} elseif (Util::DEBUG && array_key_exists ( "q", $_GET ) && "logs" == $_GET ["q"]) {
+			} elseif (T4D_DEBUG && array_key_exists ( "q", $_GET ) && "logs" == $_GET ["q"]) {
 				if ($dir = opendir ( "logs/" )) {
 					header ( "Content-type: text/plain; charset=utf-8" );
 					while ( ($file = readdir ( $dir )) !== false ) {
