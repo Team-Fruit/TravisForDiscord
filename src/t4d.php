@@ -4,9 +4,10 @@ class Util {
 	const VERSION = "v1.0";
 	public static function secondsToText(/*int*/ $seconds)/*: string*/ {
 		// if you dont need php5 support, just remove the is_int check and make the input argument type int.
-		if (! \is_int ( $seconds )) {
-			throw new InvalidArgumentException ( 'Argument 1 passed to secondsToText() must be of the type int, ' . \gettype ( $seconds ) . ' given' );
-		}
+		if (! is_int ( $seconds ))
+			return "unknown";
+			// throw new InvalidArgumentException ( 'Argument 1 passed to secondsToText() must be of the type int, ' . \gettype ( $seconds ) . ' given' );
+
 		$dtF = new DateTime ( '@0' );
 		$dtT = new DateTime ( "@$seconds" );
 		$ret = '';
@@ -73,6 +74,10 @@ class T4D {
 					"channel_id" => $channelID
 			);
 		$travisdata = $this->recieveTravisData ();
+		if (T4D_DEBUG)
+			$this->response->result_data_t4d += array (
+					"recieve_data" => $travisdata
+			);
 		$discorddata = $this->travisDataToDiscordData ( $travisdata );
 		if (T4D_DEBUG)
 			$this->response->result_data_t4d += array (
@@ -126,17 +131,27 @@ class T4D {
 				"embed" => array (
 						"author" => array (
 								"name" => $travisdata->author_name,
-								"icon_url" => "https://secure.gravatar.com/avatar/" . md5 ( $travisdata->author_name )
+								"url" => "https://github.com/" . $travisdata->repository->owner_name . "/",
+								"icon_url" => "https://avatars.githubusercontent.com/" . $travisdata->repository->owner_name
 						),
 						"title" => "[" . $travisdata->repository->name . ":" . $travisdata->branch . "] Build #" . $travisdata->number,
-						"description" => "🏳 " . ($travisdata->result == 0 ? "✓" : "✘") . " " . $travisdata->result_message . "\n⏱ " . Util::secondsToText ( $travisdata->duration ) . ".",
 						"url" => $travisdata->build_url,
 						"color" => 16052399,
 						"fields" => array (
 								array (
-										"name" => "Changes",
+										"name" => "🔄 Changes",
 										"value" => "[`" . substr ( $travisdata->commit, 0, 6 ) . "`](https://github.com/" . $travisdata->repository->owner_name . "/" . $travisdata->repository->name . "/commit/" . $travisdata->commit . ") " . explode ( "\n", $travisdata->message ) [0] . " - " . $travisdata->author_name . "\n[→ View Changeset](" . $travisdata->compare_url . ")"
-								)
+								),
+								array (
+										"name" => "🏳 Status",
+										"value" => ($travisdata->result == 0 ? "✓" : "✘") . " " . $travisdata->result_message,
+										"inline" => true,
+								),
+								array (
+										"name" => "⏱ Duration",
+										"value" => Util::secondsToText ( $travisdata->duration ),
+										"inline" => true,
+								),
 						)
 				)
 		);
