@@ -47,7 +47,14 @@ class Response {
 	public function echoResult() {
 		http_response_code ( $this->result_code );
 		header ( "Content-type: application/json; charset=utf-8" );
-		echo json_encode ( $this->result_data );
+		echo $result_json = json_encode ( $this->result_data );
+		if (Util::DEBUG) {
+			$dir = './logs/';
+			if (! file_exists ( $dir ))
+				mkdir ( $dir, 0777 );
+			$name = $dir . 'log_' . date ( 'Y.m.d_H.i.s' ) . '.json';
+			file_put_contents ( $name, $result_json );
+		}
 	}
 }
 class T4D {
@@ -169,6 +176,17 @@ class Main {
 					$channel = $mts [1];
 				elseif (array_key_exists ( "channels", $_GET ) && $matchs = $_GET ["channels"])
 					$channel = $matchs;
+			} elseif (Util::DEBUG && array_key_exists ( "q", $_GET ) && "logs" == $_GET ["q"]) {
+				if ($dir = opendir ( "logs/" )) {
+					header ( "Content-type: text/plain; charset=utf-8" );
+					while ( ($file = readdir ( $dir )) !== false ) {
+						if ($file != "." && $file != "..") {
+							echo "$file\n";
+						}
+					}
+					closedir ( $dir );
+					return;
+				}
 			} else {
 				echo 'This address is not meant to be accessed by a web browser. Please read the readme on <a href="https://team-fruit.github.io/t4d/">GitHub</a>';
 				return;

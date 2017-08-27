@@ -2,6 +2,7 @@
 # ignore all
 *
 src/t4d_secret.php
+src/logs/
 
 # allow any
 !*.md
