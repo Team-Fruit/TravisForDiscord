@@ -1,10 +1,8 @@
 <?php
 require_once 't4d_secret.php';
-
 class Util {
 	const VERSION = "v1.0";
 	const DEBUG = false;
-
 	public static function secondsToText(/*int*/ $seconds)/*: string*/ {
 		// if you dont need php5 support, just remove the is_int check and make the input argument type int.
 		if (! \is_int ( $seconds )) {
@@ -30,7 +28,7 @@ class Util {
 				$ret .= $diff->$time . ' ' . $timename;
 				if ($diff->$time !== 1 && $diff->$time !== - 1)
 					$ret .= 's';
-					$ret .= ' ';
+				$ret .= ' ';
 			}
 		}
 		return substr ( $ret, 0, - 1 );
@@ -40,10 +38,11 @@ class Response {
 	public $result_code = 200;
 	public $result_data;
 	public $result_data_t4d;
-
 	public function __construct() {
 		$this->result_data_t4d = array ();
-		$this->result_data = array ("t4d"=>&$this->result_data_t4d);
+		$this->result_data = array (
+				"t4d" => &$this->result_data_t4d
+		);
 	}
 	public function echoResult() {
 		http_response_code ( $this->result_code );
@@ -54,14 +53,13 @@ class Response {
 class T4D {
 	private $response;
 	private $channelID;
-
 	public function __construct($channelID) {
-		$this->response = new Response();
+		$this->response = new Response ();
 		$this->channelID = $channelID;
 	}
 	public function run() {
-		if (!isset($this->channelID))
-			throw new InvalidQueryException("Invalid channel ID");
+		if (! isset ( $this->channelID ))
+			throw new InvalidQueryException ( "Invalid channel ID" );
 
 		$channelID = $this->channelID;
 		if (Util::DEBUG)
@@ -91,7 +89,7 @@ class T4D {
 		$header = [
 				'Content-Type: application/json; charset=utf-8',
 				'Authorization: Bot ' . T4D_TOKEN,
-				'User-Agent: TravisForDiscord ('.T4D_SERVER.', '.Util::VERSION.')'
+				'User-Agent: TravisForDiscord (' . T4D_SERVER . ', ' . Util::VERSION . ')'
 		];
 
 		$curl = curl_init ();
@@ -140,7 +138,7 @@ class T4D {
 	}
 	public function launch() {
 		try {
-			$this->run();
+			$this->run ();
 		} catch ( InvalidQueryException $e ) {
 			$this->response->result_code = 400;
 			$this->response->result_data_t4d += array (
@@ -158,16 +156,25 @@ class T4D {
 class InvalidQueryException extends RuntimeException {
 }
 class Main {
-
 	public function launch() {
 		try {
-			if (array_key_exists ( "PATH_INFO", $_SERVER ) && preg_match ( "/^\/channels\//", $_SERVER ["PATH_INFO"])) {
-				if (!((preg_match ( "/^\/channels\/([0-9]+)/", $_SERVER ["PATH_INFO"], $mts ) && $matchs = $mts [1]) || (array_key_exists ( "channels", $_GET ) && $matchs = $_GET ["channels"])))
-					$matchs = null;
-				(new T4D($matchs))->launch($matchs);
+			$channel = null;
+			if (array_key_exists ( "PATH_INFO", $_SERVER ) && preg_match ( "/^\/?channels\//", $_SERVER ["PATH_INFO"] )) {
+				if (preg_match ( "/^\/?channels\/([0-9]+)/", $_SERVER ["PATH_INFO"], $mts ))
+					$channel = $mts [1];
+				elseif (array_key_exists ( "channels", $_GET ) && $matchs = $_GET ["channels"])
+					$channel = $matchs;
+			} elseif (array_key_exists ( "q", $_GET ) && preg_match ( "/^\/?channels\//", $_GET ["q"] )) {
+				if (preg_match ( "/^\/?channels\/([0-9]+)/", $_GET ["q"], $mts ))
+					$channel = $mts [1];
+				elseif (array_key_exists ( "channels", $_GET ) && $matchs = $_GET ["channels"])
+					$channel = $matchs;
 			} else {
-				header('Location: https://team-fruit.github.io/t4d/');
+				echo 'This address is not meant to be accessed by a web browser. Please read the readme on <a href="https://team-fruit.github.io/t4d/">GitHub</a>';
+				return;
 			}
+
+			(new T4D ( $channel ))->launch ();
 		} catch ( InvalidQueryException $e ) {
 		} catch ( RuntimeException $e ) {
 		}
