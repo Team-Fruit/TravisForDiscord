@@ -130,11 +130,12 @@ class T4D {
 		$data = array (
 				"embed" => array (
 						"author" => array (
-								"name" => $travisdata->author_name,
+								"name" => $travisdata->repository->owner_name,
 								"url" => "https://github.com/" . $travisdata->repository->owner_name . "/",
 								"icon_url" => "https://avatars.githubusercontent.com/" . $travisdata->repository->owner_name
 						),
-						"title" => "[" . $travisdata->repository->name . ":" . $travisdata->branch . "] Build #" . $travisdata->number,
+						"title" => "[ " . $travisdata->repository->name . " > " . $travisdata->branch . " ] ",
+						"description" => "#" . $travisdata->number . " " . $travisdata->result_message,
 						"url" => $travisdata->build_url,
 						"color" => 16052399,
 						"fields" => array (
@@ -145,13 +146,13 @@ class T4D {
 								array (
 										"name" => "🏳 Status",
 										"value" => ($travisdata->result == 0 ? "✓" : "✘") . " " . $travisdata->result_message,
-										"inline" => true,
+										"inline" => true
 								),
 								array (
 										"name" => "⏱ Duration",
 										"value" => Util::secondsToText ( $travisdata->duration ),
-										"inline" => true,
-								),
+										"inline" => true
+								)
 						)
 				)
 		);
