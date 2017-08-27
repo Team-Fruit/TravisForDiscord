@@ -1,0 +1,15 @@
+## .gitignore ##
+# ignore all
+*
+src/t4d_secret.php
+
+# allow any
+!*.md
+!src/
+!.gitmodules
+!.gitignore
+!.gitattributes
+!.travis.yml
+!pom.xml
+!LICENSE.md
+!README.md
