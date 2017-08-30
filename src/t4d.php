@@ -137,7 +137,7 @@ class T4D {
 						"title" => "[ " . $travisdata->repository->name . " > " . $travisdata->branch . " ] ",
 						"description" => "#" . $travisdata->number . " " . $travisdata->result_message,
 						"url" => $travisdata->build_url,
-						"color" => 16052399,
+						"color" => $travisdata->result == 0 ? 16052399 : 16711680,
 						"fields" => array (
 								array (
 										"name" => "🔄 Changes",
